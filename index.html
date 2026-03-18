@@ -264,6 +264,8 @@ document.getElementById('startbtn').addEventListener('click',()=>{
   img.onload=()=>{ origImg=img; buildGame(); };
   img.onerror=()=>toast('Could not load image — try uploading your own!');
   img.src=imgSrc;
+  // Use this tap as the user gesture to unlock and start music
+  setTimeout(unlockAndPlay, 800);
 });
 
 // ── BUILD GAME ──
@@ -789,7 +791,7 @@ window.addEventListener('resize',()=>{
 
 <div id="musicPanel">
   <h3>🎵 Background Music</h3>
-  <input type="text" id="ytUrl" placeholder="Paste YouTube video or playlist URL…" value="https://youtube.com/playlist?list=PLtyioGn0RusztTJWp9ZBvtz3rkdMZG7kM">
+  <input type="text" id="ytUrl" placeholder="Paste YouTube video or playlist URL…" value="https://youtu.be/cvNFa_sNPWU?si=mnHrspyknrecowqL">
   <div class="music-row">
     <button class="mpbtn" id="mpPlay" onclick="musicPlay()">▶ Play</button>
     <button class="mpbtn" id="mpStop" onclick="musicStop()">■ Stop</button>
@@ -819,7 +821,7 @@ function ytExtract(url){
 
 function onYouTubeIframeAPIReady(){
   ytReady=true;
-  var url=document.getElementById('ytUrl').value.trim()||'https://youtube.com/playlist?list=PLtyioGn0RusztTJWp9ZBvtz3rkdMZG7kM';
+  var url=document.getElementById('ytUrl').value.trim()||'https://youtu.be/cvNFa_sNPWU?si=mnHrspyknrecowqL';
   var info=ytExtract(url);if(!info)return;
   var pvars={autoplay:1,playsinline:1,controls:0,mute:1,origin:window.location.origin};
   var vidId=undefined;

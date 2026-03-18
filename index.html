@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Restore the Masters 🎨</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Reenie+Beanie&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1008;
+  --paper: #f5f0e8;
+  --aged: #e8dfc8;
+  --accent: #c0392b;
+  --gold: #d4a017;
+  --sage: #7a9e7e;
+  --shadow: rgba(26,16,8,0.15);
+}
+* { box-sizing:border-box; margin:0; padding:0; touch-action:manipulation; }
+body {
+  background:var(--paper);
+  font-family:'Caveat',cursive;
+  color:var(--ink);
+  min-height:100vh;
+  overflow:hidden;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(26,16,8,.04) 27px,rgba(26,16,8,.04) 28px),
+    repeating-linear-gradient(90deg,transparent,transparent 27px,rgba(26,16,8,.03) 27px,rgba(26,16,8,.03) 28px);
+}
+.screen { display:none; width:100%; height:100vh; flex-direction:column; align-items:center; justify-content:center; }
+.screen.active { display:flex; }
+
+/* ── SETUP ── */
+#setup { padding:20px; gap:14px; overflow-y:auto; }
+.title-block { text-align:center; }
+.title-block h1 { font-family:‘Reenie Beanie’,cursive; font-size:clamp(2.2rem,7vw,3.8rem); text-shadow:3px 3px 0 var(–gold); line-height:1; }
+.title-block p { font-size:1.1rem; color:#6b5740; margin-top:3px; }
+
+.gallery-section { width:100%; max-width:520px; }
+.gallery-label { font-size:1.15rem; font-weight:600; margin-bottom:7px; }
+.gallery-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:9px; }
+.gallery-card {
+border:2.5px solid var(–ink); border-radius:11px; overflow:hidden;
+cursor:pointer; box-shadow:3px 3px 0 var(–ink); transition:all .15s;
+background:#fff; position:relative;
+}
+.gallery-card:hover { transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(–ink); }
+.gallery-card.selected { border-color:var(–accent); box-shadow:3px 3px 0 var(–accent); }
+.gallery-card img { width:100%; height:75px; object-fit:cover; display:block; }
+.gallery-card .card-title { font-size:.72rem; padding:3px 4px; text-align:center; line-height:1.2; background:#fff; }
+.gallery-card .check {
+display:none; position:absolute; top:3px; right:3px;
+background:var(–accent); color:#fff; border-radius:50%;
+width:17px; height:17px; font-size:.65rem;
+align-items:center; justify-content:center; font-style:normal;
+}
+.gallery-card.selected .check { display:flex; }
+
+.upload-zone {
+border:3px dashed #b8a88a; border-radius:13px; padding:14px;
+text-align:center; cursor:pointer; background:rgba(255,255,255,.5);
+transition:all .2s; width:100%; max-width:520px;
+}
+.upload-zone:hover,.upload-zone.drag-over { border-color:var(–accent); background:rgba(192,57,43,.05); }
+.upload-zone .icon { font-size:1.8rem; display:block; margin-bottom:3px; }
+.upload-zone h3 { font-size:1.15rem; }
+.upload-zone p { color:#8b7355; font-size:.88rem; }
+#fileInput { display:none; }
+.preview-thumb { width:100%; max-height:90px; object-fit:contain; border-radius:6px; margin-top:7px; border:2px solid var(–gold); }
+
+.section-label { font-size:1.15rem; font-weight:600; margin-bottom:5px; }
+.time-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:100%; max-width:520px; }
+.time-btn {
+background:#fff; border:2.5px solid var(–ink); border-radius:10px;
+padding:9px 4px; text-align:center; cursor:pointer;
+box-shadow:3px 3px 0 var(–ink); font-family:‘Caveat’,cursive; transition:all .1s;
+}
+.time-btn:hover { transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(–ink); }
+.time-btn.selected { background:var(–ink); color:var(–paper); box-shadow:1px 1px 0 var(–ink); transform:translate(2px,2px); }
+.time-btn .mins { font-size:1.3rem; font-weight:700; display:block; }
+.time-btn .pieces { font-size:.78rem; color:#8b7355; }
+.time-btn.selected .pieces { color:var(–aged); }
+
+.start-btn {
+background:var(–accent); color:#fff;
+border:3px solid var(–ink); border-radius:13px;
+padding:13px 36px; font-family:‘Reenie Beanie’,cursive; font-size:1.7rem;
+cursor:pointer; box-shadow:5px 5px 0 var(–ink); transition:all .15s;
+width:100%; max-width:520px;
+}
+.start-btn:hover { transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(–ink); }
+.start-btn:active { transform:translate(3px,3px); box-shadow:2px 2px 0 var(–ink); }
+.start-btn:disabled { background:#aaa; cursor:not-allowed; transform:none; box-shadow:3px 3px 0 #888; }
+
+/* ── PROCESSING ── */
+#processing { gap:20px; text-align:center; padding:24px; }
+#processing h2 { font-family:‘Reenie Beanie’,cursive; font-size:2.2rem; }
+.progress-bar-wrap { width:280px; height:20px; border:2.5px solid var(–ink); border-radius:10px; overflow:hidden; box-shadow:3px 3px 0 var(–ink); }
+.progress-bar-fill { height:100%; background:linear-gradient(90deg,var(–sage),var(–gold)); width:0%; transition:width .3s ease; }
+#processMsg { font-size:1.1rem; color:#6b5740; }
+.spin-anim { font-size:3rem; animation:spin 1s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── GAME ── */
+#game { flex-direction:column; justify-content:flex-start; padding:0; height:100vh; overflow:hidden; }
+.hud {
+display:flex; align-items:center; justify-content:space-between;
+padding:6px 12px; background:var(–paper); border-bottom:2.5px solid var(–ink);
+z-index:10; flex-shrink:0; gap:8px;
+}
+.hud-title { font-family:‘Reenie Beanie’,cursive; font-size:1.45rem; white-space:nowrap; }
+.hud-stats { display:flex; gap:7px; }
+.stat-pill { background:#fff; border:2px solid var(–ink); border-radius:20px; padding:2px 10px; font-size:.88rem; box-shadow:2px 2px 0 var(–ink); }
+.legend-row { padding:4px 10px; border-bottom:1.5px solid #c8bba0; background:var(–paper); flex-shrink:0; }
+.legend-strip { display:flex; gap:5px; overflow-x:auto; padding:2px 0; scrollbar-width:none; }
+.legend-strip::-webkit-scrollbar { display:none; }
+.legend-chip {
+display:flex; align-items:center; gap:3px;
+background:#fff; border:2px solid var(–ink); border-radius:20px;
+padding:1px 7px; font-size:.78rem; white-space:nowrap;
+box-shadow:1px 1px 0 var(–ink); flex-shrink:0; transition:opacity .3s;
+}
+.legend-chip.done { opacity:.3; text-decoration:line-through; }
+.legend-chip .chip-dot { width:10px; height:10px; border-radius:50%; border:1.5px solid var(–ink); flex-shrink:0; }
+
+.game-body { display:flex; flex-direction:row; flex:1; overflow:hidden; width:100%; }
+.canvas-wrap { flex:1; overflow:hidden; position:relative; background:#d8d2c8; cursor:crosshair; }
+#puzzleCanvas { position:absolute; top:0; left:0; transform-origin:0 0; }
+
+.ctrl-panel {
+background:var(–paper); border-top:2.5px solid var(–ink);
+padding:10px 13px; display:flex; align-items:center; gap:13px;
+flex-shrink:0; z-index:10; width:100%;
+}
+#game.landscape .ctrl-panel {
+border-top:none; border-left:2.5px solid var(–ink);
+flex-direction:column; align-items:center; justify-content:center;
+width:148px; padding:12px 8px; overflow-y:auto; gap:10px;
+}
+#game.landscape .target-section { align-items:center; text-align:center; }
+#game.landscape .target-number-display { flex-direction:column; align-items:center; gap:4px; }
+
+.spinner-section { display:flex; flex-direction:column; align-items:center; gap:4px; }
+#spinnerCanvas { border:2.5px solid var(–ink); border-radius:50%; box-shadow:3px 3px 0 var(–ink); }
+.spin-btn {
+background:var(–gold); border:2.5px solid var(–ink); border-radius:8px;
+padding:4px 13px; font-family:‘Caveat’,cursive; font-size:1rem; font-weight:700;
+cursor:pointer; box-shadow:3px 3px 0 var(–ink); transition:all .1s; white-space:nowrap;
+}
+.spin-btn:hover { transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(–ink); }
+.spin-btn:active { transform:translate(2px,2px); box-shadow:1px 1px 0 var(–ink); }
+.spin-btn:disabled { background:#ccc; cursor:not-allowed; transform:none; }
+
+.target-section { flex:1; display:flex; flex-direction:column; gap:4px; }
+.target-label { font-size:.82rem; color:#6b5740; }
+.target-number-display { display:flex; align-items:center; gap:8px; }
+.big-number { font-family:‘Reenie Beanie’,cursive; font-size:2.9rem; line-height:1; color:var(–accent); text-shadow:2px 2px 0 var(–ink); }
+.color-swatch { width:34px; height:34px; border:2.5px solid var(–ink); border-radius:6px; box-shadow:2px 2px 0 var(–ink); }
+.remaining-badge { background:var(–sage); color:#fff; border:2px solid var(–ink); border-radius:20px; padding:2px 9px; font-size:.82rem; box-shadow:2px 2px 0 var(–ink); }
+.timer-display { font-family:‘Reenie Beanie’,cursive; font-size:1.55rem; text-align:center; min-width:52px; }
+.timer-display.urgent { color:var(–accent); animation:pulse .5s ease-in-out infinite alternate; }
+@keyframes pulse { to { transform:scale(1.1); } }
+
+/* ── COMPLETE ── */
+#complete { gap:16px; padding:24px; text-align:center; }
+#complete h2 { font-family:‘Reenie Beanie’,cursive; font-size:clamp(2rem,7vw,3.4rem); text-shadow:3px 3px 0 var(–gold); }
+.reveal-canvas-wrap { border:4px solid var(–ink); border-radius:13px; box-shadow:6px 6px 0 var(–ink); overflow:hidden; max-width:min(88vw,370px); }
+#revealCanvas { display:block; width:100%; height:auto; }
+.play-again-btn {
+background:var(–sage); color:#fff; border:3px solid var(–ink);
+border-radius:12px; padding:12px 34px;
+font-family:‘Reenie Beanie’,cursive; font-size:1.7rem;
+cursor:pointer; box-shadow:5px 5px 0 var(–ink); transition:all .15s;
+}
+.play-again-btn:hover { transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(–ink); }
+
+.tap-ripple {
+position:absolute; pointer-events:none; border-radius:50%;
+animation:ripple-out .5s ease-out forwards;
+border:3px solid var(–gold); z-index:100;
+}
+@keyframes ripple-out {
+from { width:10px; height:10px; opacity:1; transform:translate(-50%,-50%) scale(1); }
+to   { width:60px; height:60px; opacity:0; transform:translate(-50%,-50%) scale(3); }
+}
+.toast {
+position:fixed; top:66px; left:50%; transform:translateX(-50%);
+background:var(–ink); color:var(–paper);
+padding:8px 18px; border-radius:30px; font-size:1.05rem;
+z-index:999; opacity:0; pointer-events:none; transition:opacity .3s; white-space:nowrap;
+}
+.toast.show { opacity:1; }
+</style>
+
+</head>
+<body>
+
+<!-- SETUP -->
+
+<div id="setup" class="screen active">
+  <div class="title-block">
+    <h1>🖌️ Restore the Masters</h1>
+    <p>A paint-by-numbers restoration puzzle</p>
+  </div>
+
+  <div class="gallery-section">
+    <div class="gallery-label">🖼️ Choose a painting:</div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+
+  <div class="upload-zone" id="uploadZone">
+    <span class="icon">📁</span>
+    <h3>Or upload your own</h3>
+    <p>Tap to choose an image from your device</p>
+    <input type="file" id="fileInput" accept="image/*">
+    <img id="previewThumb" class="preview-thumb" style="display:none">
+  </div>
+
+  <div style="width:100%;max-width:520px;">
+    <div class="section-label">⏱️ How long do you want to play?</div>
+    <div class="time-grid">
+      <div class="time-btn" data-mins="5" data-pieces="100"><span class="mins">5</span><span>min</span><span class="pieces">~100 pieces</span></div>
+      <div class="time-btn selected" data-mins="10" data-pieces="220"><span class="mins">10</span><span>min</span><span class="pieces">~220 pieces</span></div>
+      <div class="time-btn" data-mins="15" data-pieces="380"><span class="mins">15</span><span>min</span><span class="pieces">~380 pieces</span></div>
+      <div class="time-btn" data-mins="20" data-pieces="550"><span class="mins">20</span><span>min</span><span class="pieces">~550 pieces</span></div>
+    </div>
+  </div>
+
+<button class="start-btn" id="startBtn" disabled>🎨 Begin Restoration!</button>
+
+</div>
+
+<!-- PROCESSING -->
+
+<div id="processing" class="screen">
+  <div class="spin-anim">🎨</div>
+  <h2>Preparing your masterpiece…</h2>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+  <p id="processMsg">Loading image…</p>
+</div>
+
+<!-- GAME -->
+
+<div id="game" class="screen">
+  <div class="hud">
+    <span class="hud-title">🖌️ Restore the Masters</span>
+    <div class="hud-stats">
+      <span class="stat-pill" id="piecesStat">0 / 0</span>
+      <span class="stat-pill timer-display" id="timerDisplay">10:00</span>
+    </div>
+  </div>
+  <div class="legend-row"><div class="legend-strip" id="legendStrip"></div></div>
+
+  <div class="game-body">
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="puzzleCanvas"></canvas>
+    </div>
+    <div class="ctrl-panel">
+      <div class="spinner-section">
+        <canvas id="spinnerCanvas" width="80" height="80"></canvas>
+        <button class="spin-btn" id="spinBtn">SPIN!</button>
+      </div>
+      <div class="target-section">
+        <span class="target-label">Find and tap all regions showing:</span>
+        <div class="target-number-display">
+          <span class="big-number" id="bigNumber">—</span>
+          <div class="color-swatch" id="colorSwatch"></div>
+          <span class="remaining-badge" id="remainingBadge">— left</span>
+        </div>
+      </div>
+      <span class="timer-display" id="timerDisplay2">10:00</span>
+    </div>
+  </div>
+</div>
+
+<!-- COMPLETE -->
+
+<div id="complete" class="screen">
+  <h2>✨ Masterpiece Restored! ✨</h2>
+  <p style="font-size:1.1rem;color:#6b5740;">The painting lives again!</p>
+  <div class="reveal-canvas-wrap"><canvas id="revealCanvas"></canvas></div>
+  <button class="play-again-btn" id="playAgainBtn">🎨 Paint Another!</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// BUILT-IN PAINTINGS — Wikimedia Commons public domain
+// ═══════════════════════════════════════
+// corsproxy.io lets local HTML files fetch images for canvas processing
+const PROXY = 'https://corsproxy.io/?url=';
+const WM = 'https://upload.wikimedia.org/wikipedia/commons/thumb/';
+
+const PAINTINGS = [
+  {
+    title:'Mona Lisa', artist:'da Vinci',
+    thumb: WM+'e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/200px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg',
+    url: PROXY+encodeURIComponent(WM+'e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/600px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg'),
+  },
+  {
+    title:'Starry Night', artist:'Van Gogh',
+    thumb: WM+'e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg',
+    url: PROXY+encodeURIComponent(WM+'e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/600px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg'),
+  },
+  {
+    title:'The Great Wave', artist:'Hokusai',
+    thumb: WM+'a/a5/Tsunami_by_hokusai_19th_century.jpg/200px-Tsunami_by_hokusai_19th_century.jpg',
+    url: PROXY+encodeURIComponent(WM+'a/a5/Tsunami_by_hokusai_19th_century.jpg/600px-Tsunami_by_hokusai_19th_century.jpg'),
+  },
+  {
+    title:'The Kiss', artist:'Klimt',
+    thumb: WM+'4/40/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/188px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg',
+    url: PROXY+encodeURIComponent(WM+'4/40/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/500px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg'),
+  },
+  {
+    title:'Sunflowers', artist:'Van Gogh',
+    thumb: WM+"4/46/Vincent_van_Gogh%27s_famous_sunflowers.jpg/200px-Vincent_van_Gogh%27s_famous_sunflowers.jpg",
+    url: PROXY+encodeURIComponent(WM+"4/46/Vincent_van_Gogh%27s_famous_sunflowers.jpg/600px-Vincent_van_Gogh%27s_famous_sunflowers.jpg"),
+  },
+  {
+    title:'Girl w/ Pearl', artist:'Vermeer',
+    thumb: WM+'0/0f/1665_Girl_with_a_Pearl_Earring.jpg/187px-1665_Girl_with_a_Pearl_Earring.jpg',
+    url: PROXY+encodeURIComponent(WM+'0/0f/1665_Girl_with_a_Pearl_Earring.jpg/500px-1665_Girl_with_a_Pearl_Earring.jpg'),
+  },
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const STATE = {
+  imageData:null, selectedPainting:null, originalImage:null,
+  selectedMins:10, selectedPieces:220, numColors:16,
+  palette:[], regions:[], regionMap:null,
+  puzzleW:0, puzzleH:0, renderScale:4,
+  scale:1, offsetX:0, offsetY:0,
+  currentTarget:null, filledCount:0, totalRegions:0,
+  timerSecs:600, timerInterval:null, spinning:false,
+  completedColors:new Set(), isLandscape:false,
+};
+
+// ═══════════════════════════════════════
+// SCREENS
+// ═══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// GALLERY
+// ═══════════════════════════════════════
+function buildGallery() {
+  const grid = document.getElementById('galleryGrid');
+  PAINTINGS.forEach((p,i) => {
+    const card = document.createElement('div');
+    card.className = 'gallery-card';
+    card.innerHTML = `<img src="${p.thumb}" alt="${p.title}" crossorigin="anonymous"><div class="card-title">${p.title}<br><em style="font-size:.68rem;color:#999">${p.artist}</em></div><i class="check">✓</i>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.gallery-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      STATE.selectedPainting = i;
+      STATE.imageData = null;
+      document.getElementById('previewThumb').style.display = 'none';
+      startBtn.disabled = false;
+    });
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════
+// UPLOAD
+// ═══════════════════════════════════════
+const uploadZone = document.getElementById('uploadZone');
+const fileInput  = document.getElementById('fileInput');
+const previewThumb = document.getElementById('previewThumb');
+const startBtn   = document.getElementById('startBtn');
+
+uploadZone.addEventListener('click', ()=>fileInput.click());
+uploadZone.addEventListener('dragover', e=>{e.preventDefault();uploadZone.classList.add('drag-over');});
+uploadZone.addEventListener('dragleave', ()=>uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e=>{
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', ()=>{if(fileInput.files[0]) handleFile(fileInput.files[0]);});
+
+function handleFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    previewThumb.src = e.target.result;
+    previewThumb.style.display = 'block';
+    STATE.imageData = e.target.result;
+    STATE.selectedPainting = null;
+    document.querySelectorAll('.gallery-card').forEach(c=>c.classList.remove('selected'));
+    startBtn.disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+document.querySelectorAll('.time-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    STATE.selectedMins = parseInt(btn.dataset.mins);
+    STATE.selectedPieces = parseInt(btn.dataset.pieces);
+  });
+});
+
+startBtn.addEventListener('click', ()=>{
+  showScreen('processing');
+  setTimeout(processImage, 80);
+});
+
+// ═══════════════════════════════════════
+// PROCESSING PIPELINE
+// ═══════════════════════════════════════
+async function processImage() {
+  setProgress(5, 'Loading image…');
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+
+  img.onerror = () => {
+    showScreen('setup');
+    showToast('⚠️ Could not load painting — check your internet connection and try again, or upload your own image.');
+  };
+
+  img.onload = async () => {
+    STATE.originalImage = img;
+
+    // Scale to working resolution — larger = better label placement
+    const MAX = 480;
+    const r = Math.min(MAX/img.width, MAX/img.height, 1);
+    const w = Math.round(img.width*r);
+    const h = Math.round(img.height*r);
+    STATE.puzzleW = w; STATE.puzzleH = h;
+
+    const offscreen = document.createElement('canvas');
+    offscreen.width = w; offscreen.height = h;
+    const ctx = offscreen.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+
+    setProgress(14, 'Smoothing image…');
+    await sleep(20);
+
+    // ── Pre-blur: merges nearby similar colors into larger regions ──
+    // Radius scales with image size — bigger image needs bigger blur
+    const blurR = Math.max(4, Math.round(Math.min(w,h)/55));
+    boxBlur(ctx, w, h, blurR);
+    boxBlur(ctx, w, h, blurR); // 2 passes ≈ Gaussian
+
+    setProgress(26, 'Quantizing palette…');
+    await sleep(20);
+
+    const imgData = ctx.getImageData(0,0,w,h);
+    const pixels = [];
+    for(let i=0;i<imgData.data.length;i+=4)
+      pixels.push([imgData.data[i],imgData.data[i+1],imgData.data[i+2]]);
+
+    STATE.palette = kMeans(pixels, STATE.numColors, 20);
+
+    setProgress(46, 'Mapping regions…');
+    await sleep(20);
+
+    const colorAssign = new Uint8Array(w*h);
+    for(let i=0;i<pixels.length;i++) colorAssign[i]=nearestColor(pixels[i],STATE.palette);
+
+    setProgress(58, 'Finding regions…');
+    await sleep(20);
+
+    const regionMap = new Int32Array(w*h).fill(-1);
+    const regions = [];
+    for(let y=0;y<h;y++){
+      for(let x=0;x<w;x++){
+        if(regionMap[y*w+x]!==-1) continue;
+        const colorIdx=colorAssign[y*w+x];
+        const pixelList=[];
+        floodFill(x,y,colorIdx,colorAssign,regionMap,regions.length,w,h,pixelList);
+        if(pixelList.length>0)
+          regions.push({colorIdx,pixels:pixelList,centroid:{x:0,y:0},labelPos:{x:0,y:0},filled:false});
+      }
+    }
+
+    setProgress(70, 'Merging small regions…');
+    await sleep(20);
+
+    // Target ~selectedPieces regions total
+    const MIN_SIZE = Math.max(15, Math.round((w*h)/(STATE.selectedPieces*3)));
+    mergeSmallRegions(regions, regionMap, colorAssign, w, h, MIN_SIZE);
+
+    setProgress(82, 'Finding label positions…');
+    await sleep(20);
+
+    // BFS erosion to find the safest interior point per region
+    computeLabelPositions(regions, regionMap, w, h);
+
+    setProgress(94, 'Rendering puzzle…');
+    await sleep(20);
+
+    STATE.regionMap = regionMap;
+    STATE.regions = regions.filter(r=>r.pixels.length>0);
+    STATE.totalRegions = STATE.regions.length;
+    STATE.filledCount = 0;
+    STATE.timerSecs = STATE.selectedMins*60;
+    STATE.completedColors.clear();
+
+    buildLegend();
+    initGameCanvas();
+    drawPuzzle();
+    initSpinner();
+
+    const isLandscape = img.width > img.height;
+    STATE.isLandscape = isLandscape;
+    document.getElementById('game').classList.toggle('landscape', isLandscape);
+
+    startTimer();
+    showScreen('game');
+    fitCanvas();
+    showToast('Spin to begin! 🎡');
+  };
+
+  img.src = STATE.imageData || PAINTINGS[STATE.selectedPainting].url;
+}
+
+function setProgress(pct,msg){
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('processMsg').textContent=msg;
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ── Box blur (2 passes ≈ Gaussian) ──
+function boxBlur(ctx, w, h, radius) {
+  const src = ctx.getImageData(0,0,w,h);
+  const dst = ctx.createImageData(w,h);
+  const s=src.data, d=dst.data;
+  const tmp=new Uint8ClampedArray(s.length);
+
+  // Horizontal
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      let R=0,G=0,B=0,cnt=0;
+      for(let dx=-radius;dx<=radius;dx++){
+        const nx=Math.min(w-1,Math.max(0,x+dx));
+        const i=(y*w+nx)*4;
+        R+=s[i];G+=s[i+1];B+=s[i+2];cnt++;
+      }
+      const o=(y*w+x)*4;
+      tmp[o]=R/cnt;tmp[o+1]=G/cnt;tmp[o+2]=B/cnt;tmp[o+3]=255;
+    }
+  }
+  // Vertical
+  for(let x=0;x<w;x++){
+    for(let y=0;y<h;y++){
+      let R=0,G=0,B=0,cnt=0;
+      for(let dy=-radius;dy<=radius;dy++){
+        const ny=Math.min(h-1,Math.max(0,y+dy));
+        const i=(ny*w+x)*4;
+        R+=tmp[i];G+=tmp[i+1];B+=tmp[i+2];cnt++;
+      }
+      const o=(y*w+x)*4;
+      d[o]=R/cnt;d[o+1]=G/cnt;d[o+2]=B/cnt;d[o+3]=255;
+    }
+  }
+  ctx.putImageData(dst,0,0);
+}
+
+// ── K-Means++ ──
+function kMeans(pixels, k, iters) {
+  const centers=[pixels[Math.floor(Math.random()*pixels.length)].slice()];
+  while(centers.length<k){
+    const dists=pixels.map(p=>{let m=Infinity;for(const c of centers){const d=cd2(p,c);if(d<m)m=d;}return m;});
+    const tot=dists.reduce((a,b)=>a+b,0);
+    let rand=Math.random()*tot;
+    for(let i=0;i<pixels.length;i++){rand-=dists[i];if(rand<=0){centers.push(pixels[i].slice());break;}}
+  }
+  const SAMP=Math.min(pixels.length,7000);
+  const step=Math.max(1,Math.floor(pixels.length/SAMP));
+  const sampled=[];
+  for(let i=0;i<pixels.length;i+=step) sampled.push(pixels[i]);
+
+  for(let iter=0;iter<iters;iter++){
+    const sums=Array.from({length:k},()=>[0,0,0,0]);
+    for(const p of sampled){
+      const ci=nearestColor(p,centers.map(c=>({r:c[0],g:c[1],b:c[2]})));
+      sums[ci][0]+=p[0];sums[ci][1]+=p[1];sums[ci][2]+=p[2];sums[ci][3]++;
+    }
+    for(let i=0;i<k;i++) if(sums[i][3]>0) centers[i]=[sums[i][0]/sums[i][3],sums[i][1]/sums[i][3],sums[i][2]/sums[i][3]];
+  }
+  return centers.map(c=>({r:Math.round(c[0]),g:Math.round(c[1]),b:Math.round(c[2])}));
+}
+
+function cd2(a,b){
+  const ar=Array.isArray(a)?a[0]:a.r,ag=Array.isArray(a)?a[1]:a.g,ab=Array.isArray(a)?a[2]:a.b;
+  const br=Array.isArray(b)?b[0]:b.r,bg=Array.isArray(b)?b[1]:b.g,bb=Array.isArray(b)?b[2]:b.b;
+  return(ar-br)**2+(ag-bg)**2+(ab-bb)**2;
+}
+function nearestColor(px,pal){let b=0,bd=Infinity;for(let i=0;i<pal.length;i++){const d=cd2(px,pal[i]);if(d<bd){bd=d;b=i;}}return b;}
+
+// ── Flood Fill ──
+function floodFill(sx,sy,ci,ca,rm,rid,w,h,pl){
+  const stack=[sy*w+sx];
+  while(stack.length>0){
+    const idx=stack.pop();
+    if(idx<0||idx>=w*h||rm[idx]!==-1||ca[idx]!==ci) continue;
+    rm[idx]=rid; pl.push([idx%w,Math.floor(idx/w)]);
+    const x=idx%w,y=Math.floor(idx/w);
+    if(x>0)stack.push(idx-1);if(x<w-1)stack.push(idx+1);
+    if(y>0)stack.push(idx-w);if(y<h-1)stack.push(idx+w);
+  }
+}
+
+// ── Merge small regions ──
+function mergeSmallRegions(regions,regionMap,colorAssign,w,h,minSize){
+  let changed=true;
+  while(changed){
+    changed=false;
+    for(let ri=0;ri<regions.length;ri++){
+      const region=regions[ri];
+      if(!region.pixels||region.pixels.length===0||region.pixels.length>=minSize) continue;
+      let nid=-1;
+      outer:for(const[px,py]of region.pixels){
+        for(const[nx,ny]of[[px-1,py],[px+1,py],[px,py-1],[px,py+1]]){
+          if(nx<0||ny<0||nx>=w||ny>=h) continue;
+          const n=regionMap[ny*w+nx];
+          if(n!==-1&&n!==ri&&regions[n]&&regions[n].pixels.length>0){nid=n;break outer;}
+        }
+      }
+      if(nid===-1) continue;
+      const tgt=regions[nid];
+      for(const[px,py]of region.pixels){regionMap[py*w+px]=nid;colorAssign[py*w+px]=tgt.colorIdx;tgt.pixels.push([px,py]);}
+      region.pixels=[];
+      changed=true;
+    }
+  }
+  const valid=regions.filter(r=>r.pixels.length>0);
+  const idMap=new Map();
+  valid.forEach((r,i)=>idMap.set(regions.indexOf(r),i));
+  for(let i=0;i<regionMap.length;i++) if(idMap.has(regionMap[i])) regionMap[i]=idMap.get(regionMap[i]);
+  regions.length=0; valid.forEach(r=>regions.push(r));
+}
+
+// ── BFS erosion: find the pixel furthest from any border in each region ──
+function computeLabelPositions(regions,regionMap,w,h){
+  const dist=new Int16Array(w*h).fill(-1);
+  const queue=[];
+
+  // Seed: all border pixels start at dist=0
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const ri=regionMap[y*w+x];
+      const isBorder=(x===0||y===0||x===w-1||y===h-1)
+        ||(x>0&&regionMap[y*w+x-1]!==ri)
+        ||(x<w-1&&regionMap[y*w+x+1]!==ri)
+        ||(y>0&&regionMap[(y-1)*w+x]!==ri)
+        ||(y<h-1&&regionMap[(y+1)*w+x]!==ri);
+      if(isBorder){dist[y*w+x]=0;queue.push(y*w+x);}
+    }
+  }
+
+  // BFS inward
+  let head=0;
+  while(head<queue.length){
+    const idx=queue[head++];
+    const x=idx%w,y=Math.floor(idx/w);
+    const d=dist[idx],ri=regionMap[idx];
+    for(const[nx,ny]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){
+      if(nx<0||ny<0||nx>=w||ny>=h) continue;
+      const ni=ny*w+nx;
+      if(regionMap[ni]===ri&&dist[ni]===-1){dist[ni]=d+1;queue.push(ni);}
+    }
+  }
+
+  // For each region pick the pixel with max dist (= deepest interior point)
+  const best=new Map();
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const ri=regionMap[y*w+x];
+      const d=dist[y*w+x];
+      if(!best.has(ri)||d>best.get(ri).d) best.set(ri,{x,y,d});
+    }
+  }
+
+  regions.forEach((region,ri)=>{
+    const b=best.get(ri);
+    region.labelPos = b ? {x:b.x,y:b.y} : {x:0,y:0};
+    region._labelDist = b ? b.d : 0;
+    // centroid
+    let sx=0,sy=0;
+    for(const[px,py]of region.pixels){sx+=px;sy+=py;}
+    region.centroid={x:Math.round(sx/region.pixels.length),y:Math.round(sy/region.pixels.length)};
+  });
+}
+
+// ═══════════════════════════════════════
+// CANVAS RENDERING
+// ═══════════════════════════════════════
+let puzzleCtx,puzzleImageData;
+
+function initGameCanvas(){
+  const RS=STATE.renderScale;
+  const canvas=document.getElementById('puzzleCanvas');
+  canvas.width=STATE.puzzleW*RS; canvas.height=STATE.puzzleH*RS;
+  puzzleCtx=canvas.getContext('2d');
+  puzzleCtx.imageSmoothingEnabled=false;
+  puzzleImageData=puzzleCtx.createImageData(canvas.width,canvas.height);
+}
+
+function drawPuzzle(){
+  const{puzzleW:w,puzzleH:h,regions,regionMap,palette,renderScale:RS,currentTarget}=STATE;
+  const RW=w*RS;
+  const data=puzzleImageData.data;
+
+  // ── Pixel pass ──
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const ri=regionMap[y*w+x];
+      const region=regions[ri];
+      let r,g,b;
+      if(region&&region.filled){const c=palette[region.colorIdx];r=c.r;g=c.g;b=c.b;}
+      else{r=250;g=248;b=244;}
+
+      const isBorder=(x===0||y===0||x===w-1||y===h-1)
+        ||(x>0&&regionMap[y*w+x-1]!==ri)||(x<w-1&&regionMap[y*w+x+1]!==ri)
+        ||(y>0&&regionMap[(y-1)*w+x]!==ri)||(y<h-1&&regionMap[(y+1)*w+x]!==ri);
+      if(isBorder){r=155;g=147;b=135;}
+
+      for(let dy=0;dy<RS;dy++){
+        for(let dx=0;dx<RS;dx++){
+          const idx=((y*RS+dy)*RW+(x*RS+dx))*4;
+          data[idx]=r;data[idx+1]=g;data[idx+2]=b;data[idx+3]=255;
+        }
+      }
+    }
+  }
+  puzzleCtx.putImageData(puzzleImageData,0,0);
+
+  // ── Number pass — uses pre-computed safe label positions ──
+  puzzleCtx.save();
+  puzzleCtx.textAlign='center';
+  puzzleCtx.textBaseline='middle';
+
+  function numColor(c,isTarget){
+    if(isTarget) return '#c0392b';
+    let{r,g,b}=c;
+    const lum=0.299*r+0.587*g+0.114*b;
+    if(lum>190){r=Math.round(r*.38);g=Math.round(g*.38);b=Math.round(b*.38);}
+    else if(lum>140){r=Math.round(r*.58);g=Math.round(g*.58);b=Math.round(b*.58);}
+    return`rgb(${r},${g},${b})`;
+  }
+
+  for(let ri=0;ri<regions.length;ri++){
+    const region=regions[ri];
+    if(region.filled) continue;
+
+    const isTarget=(region.colorIdx===currentTarget);
+    const lp=region.labelPos;
+    // Centre within the pixel block
+    const cx=(lp.x*RS)+(RS/2);
+    const cy=(lp.y*RS)+(RS/2);
+
+    // Font size: use label distance (how far from border) + region area
+    // labelDist tells us exactly how much space we have
+    const ld=region._labelDist||1;
+    const regionSize=Math.sqrt(region.pixels.length);
+    // Use whichever is smaller: area-based or distance-based cap
+    const rawSize=Math.min(regionSize*0.38, ld*0.9);
+    const fontSize=Math.max(3.5, Math.min(14, rawSize))*RS;
+
+    const num=(region.colorIdx+1).toString();
+    const color=numColor(palette[region.colorIdx],isTarget);
+
+    puzzleCtx.font=`900 ${fontSize}px 'Arial Black',Arial,sans-serif`;
+    puzzleCtx.lineWidth=Math.max(1,fontSize*0.42);
+    puzzleCtx.strokeStyle='rgba(255,255,255,0.97)';
+    puzzleCtx.lineJoin='round';
+    puzzleCtx.strokeText(num,cx,cy);
+    puzzleCtx.fillStyle=color;
+    puzzleCtx.fillText(num,cx,cy);
+  }
+  puzzleCtx.restore();
+}
+
+function fitCanvas(){
+  const wrap=document.getElementById('canvasWrap');
+  const RS=STATE.renderScale;
+  const wW=wrap.clientWidth,wH=wrap.clientHeight;
+  STATE.scale=Math.min(wW/(STATE.puzzleW*RS),wH/(STATE.puzzleH*RS));
+  STATE.offsetX=(wW-STATE.puzzleW*RS*STATE.scale)/2;
+  STATE.offsetY=(wH-STATE.puzzleH*RS*STATE.scale)/2;
+  applyTransform();
+}
+function applyTransform(){
+  document.getElementById('puzzleCanvas').style.transform=
+    `translate(${STATE.offsetX}px,${STATE.offsetY}px) scale(${STATE.scale})`;
+}
+
+// ═══════════════════════════════════════
+// PINCH-ZOOM + PAN
+// ═══════════════════════════════════════
+const wrap=document.getElementById('canvasWrap');
+let pinchStartDist=0,pinchStartScale=1;
+let isDragging=false,dragStartX=0,dragStartY=0,dragStartOffX=0,dragStartOffY=0,lastTouchX=0,lastTouchY=0;
+
+wrap.addEventListener('touchstart',e=>{
+  if(e.touches.length===2){pinchStartDist=td(e.touches);pinchStartScale=STATE.scale;isDragging=false;}
+  else if(e.touches.length===1){lastTouchX=e.touches[0].clientX;lastTouchY=e.touches[0].clientY;dragStartX=lastTouchX;dragStartY=lastTouchY;dragStartOffX=STATE.offsetX;dragStartOffY=STATE.offsetY;isDragging=true;}
+},{passive:true});
+
+wrap.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  if(e.touches.length===2){
+    const dist=td(e.touches);
+    const ns=Math.min(12,Math.max(0.4,pinchStartScale*(dist/pinchStartDist)));
+    const mx=(e.touches[0].clientX+e.touches[1].clientX)/2;
+    const my=(e.touches[0].clientY+e.touches[1].clientY)/2;
+    const rect=wrap.getBoundingClientRect();
+    const cx=mx-rect.left,cy=my-rect.top;
+    STATE.offsetX=cx-(cx-STATE.offsetX)*(ns/STATE.scale);
+    STATE.offsetY=cy-(cy-STATE.offsetY)*(ns/STATE.scale);
+    STATE.scale=ns;applyTransform();isDragging=false;
+  } else if(e.touches.length===1&&isDragging){
+    STATE.offsetX+=e.touches[0].clientX-lastTouchX;
+    STATE.offsetY+=e.touches[0].clientY-lastTouchY;
+    lastTouchX=e.touches[0].clientX;lastTouchY=e.touches[0].clientY;
+    applyTransform();
+  }
+},{passive:false});
+
+wrap.addEventListener('touchend',e=>{
+  if(e.changedTouches.length===1&&isDragging){
+    const dx=e.changedTouches[0].clientX-dragStartX;
+    const dy=e.changedTouches[0].clientY-dragStartY;
+    if(Math.abs(dx)<10&&Math.abs(dy)<10) tap(e.changedTouches[0].clientX,e.changedTouches[0].clientY);
+  }
+  isDragging=false;
+});
+
+wrap.addEventListener('mousedown',e=>{dragStartX=e.clientX;dragStartY=e.clientY;dragStartOffX=STATE.offsetX;dragStartOffY=STATE.offsetY;isDragging=true;});
+wrap.addEventListener('mousemove',e=>{if(!isDragging)return;STATE.offsetX=dragStartOffX+(e.clientX-dragStartX);STATE.offsetY=dragStartOffY+(e.clientY-dragStartY);applyTransform();});
+wrap.addEventListener('mouseup',e=>{if(Math.abs(e.clientX-dragStartX)<5&&Math.abs(e.clientY-dragStartY)<5)tap(e.clientX,e.clientY);isDragging=false;});
+wrap.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const rect=wrap.getBoundingClientRect();
+  const cx=e.clientX-rect.left,cy=e.clientY-rect.top;
+  const ns=Math.min(12,Math.max(0.4,STATE.scale*(e.deltaY>0?0.85:1.18)));
+  STATE.offsetX=cx-(cx-STATE.offsetX)*(ns/STATE.scale);
+  STATE.offsetY=cy-(cy-STATE.offsetY)*(ns/STATE.scale);
+  STATE.scale=ns;applyTransform();
+},{passive:false});
+
+function td(t){const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.sqrt(dx*dx+dy*dy);}
+
+function tap(clientX,clientY){
+  if(STATE.currentTarget===null){showToast('Spin the wheel first! 🎡');return;}
+  const rect=wrap.getBoundingClientRect();
+  const RS=STATE.renderScale;
+  const px=Math.floor((clientX-rect.left-STATE.offsetX)/STATE.scale/RS);
+  const py=Math.floor((clientY-rect.top-STATE.offsetY)/STATE.scale/RS);
+  if(px<0||py<0||px>=STATE.puzzleW||py>=STATE.puzzleH) return;
+  const ri=STATE.regionMap[py*STATE.puzzleW+px];
+  if(ri<0||ri>=STATE.regions.length) return;
+  const region=STATE.regions[ri];
+  if(region.filled) return;
+
+  if(region.colorIdx===STATE.currentTarget){
+    region.filled=true;STATE.filledCount++;
+    drawPuzzle();updateHUD();
+    spawnRipple(clientX-rect.left,clientY-rect.top);
+    updateRemainingBadge();checkColorComplete();checkWin();
+  } else {
+    showToast(`That's #${region.colorIdx+1} — looking for #${STATE.currentTarget+1}! 🔍`);
+  }
+}
+
+function spawnRipple(x,y){
+  const el=document.createElement('div');
+  el.className='tap-ripple';el.style.left=x+'px';el.style.top=y+'px';
+  wrap.appendChild(el);setTimeout(()=>el.remove(),600);
+}
+
+// ═══════════════════════════════════════
+// SPINNER
+// ═══════════════════════════════════════
+let spinnerAngle=0,spinnerColors=[];
+
+function initSpinner(){
+  spinnerColors=STATE.palette.map((c,i)=>({...c,label:i+1,done:false}));
+  drawWheel();
+}
+
+function drawWheel(){
+  const canvas=document.getElementById('spinnerCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=80,R=36,cx=40,cy=40;
+  ctx.clearRect(0,0,W,W);
+  const n=spinnerColors.length;
+  const slice=(Math.PI*2)/n;
+  for(let i=0;i<n;i++){
+    const c=spinnerColors[i];
+    const start=spinnerAngle+i*slice;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,R,start,start+slice);ctx.closePath();
+    ctx.fillStyle=c.done?'#ccc':`rgb(${c.r},${c.g},${c.b})`;ctx.fill();
+    ctx.strokeStyle='#1a1008';ctx.lineWidth=1;ctx.stroke();
+  }
+  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);
+  ctx.fillStyle='#1a1008';ctx.fill();
+  // Top pointer
+  ctx.beginPath();ctx.moveTo(cx,cy-R-2);ctx.lineTo(cx-5,cy-R+9);ctx.lineTo(cx+5,cy-R+9);
+  ctx.closePath();ctx.fillStyle='#c0392b';ctx.fill();
+  ctx.strokeStyle='#1a1008';ctx.lineWidth=1.5;ctx.stroke();
+}
+
+document.getElementById('spinBtn').addEventListener('click',()=>{
+  if(STATE.spinning) return;
+  const avail=STATE.palette.map((_,i)=>i)
+    .filter(i=>!STATE.completedColors.has(i)&&STATE.regions.some(r=>r.colorIdx===i&&!r.filled));
+  if(!avail.length) return;
+
+  STATE.spinning=true;
+  document.getElementById('spinBtn').disabled=true;
+
+  const target=avail[Math.floor(Math.random()*avail.length)];
+  const n=STATE.palette.length;
+  const sliceAngle=(Math.PI*2)/n;
+
+  // Compute landing angle: middle of target slice under top pointer (-π/2)
+  const spins=5+Math.floor(Math.random()*3);
+  const targetAngle=-Math.PI/2-target*sliceAngle-sliceAngle/2;
+  const curNorm=spinnerAngle%(Math.PI*2);
+  const tgtNorm=targetAngle%(Math.PI*2);
+  const diff=((tgtNorm-curNorm)+(Math.PI*2))%(Math.PI*2);
+  const dest=spinnerAngle+diff+spins*Math.PI*2;
+
+  const dur=3000,t0=performance.now(),a0=spinnerAngle;
+  function anim(now){
+    const t=Math.min(1,(now-t0)/dur);
+    const ease=1-Math.pow(1-t,3);
+    spinnerAngle=a0+(dest-a0)*ease;
+    drawWheel();
+    if(t<1){requestAnimationFrame(anim);}
+    else{spinnerAngle=dest;STATE.spinning=false;STATE.currentTarget=target;updateTarget();}
+  }
+  requestAnimationFrame(anim);
+});
+
+function updateTarget(){
+  const idx=STATE.currentTarget;if(idx===null)return;
+  const c=STATE.palette[idx];
+  document.getElementById('bigNumber').textContent=idx+1;
+  document.getElementById('colorSwatch').style.background=`rgb(${c.r},${c.g},${c.b})`;
+  document.getElementById('spinBtn').disabled=false;
+  updateRemainingBadge();
+  drawPuzzle();
+  showToast(`Find all the #${idx+1}s! 🔍`);
+}
+
+function updateRemainingBadge(){
+  if(STATE.currentTarget===null)return;
+  const rem=STATE.regions.filter(r=>r.colorIdx===STATE.currentTarget&&!r.filled).length;
+  document.getElementById('remainingBadge').textContent=rem+' left';
+}
+
+function checkColorComplete(){
+  const idx=STATE.currentTarget;if(idx===null)return;
+  if(STATE.regions.filter(r=>r.colorIdx===idx).every(r=>r.filled)){
+    STATE.completedColors.add(idx);spinnerColors[idx].done=true;
+    drawWheel();updateLegend();
+    showToast(`#${idx+1} complete! ✨ Spin again!`);
+    STATE.currentTarget=null;
+    document.getElementById('bigNumber').textContent='—';
+    document.getElementById('colorSwatch').style.background='transparent';
+    document.getElementById('remainingBadge').textContent='— left';
+  }
+}
+
+// ═══════════════════════════════════════
+// LEGEND
+// ═══════════════════════════════════════
+function buildLegend(){
+  const strip=document.getElementById('legendStrip');
+  strip.innerHTML='';
+  STATE.palette.forEach((c,i)=>{
+    const chip=document.createElement('div');
+    chip.className='legend-chip';chip.dataset.colorIdx=i;
+    chip.innerHTML=`<div class="chip-dot" style="background:rgb(${c.r},${c.g},${c.b})"></div>#${i+1}`;
+    strip.appendChild(chip);
+  });
+}
+function updateLegend(){
+  document.querySelectorAll('.legend-chip').forEach(chip=>{
+    chip.classList.toggle('done',STATE.completedColors.has(parseInt(chip.dataset.colorIdx)));
+  });
+}
+
+// ═══════════════════════════════════════
+// HUD & TIMER
+// ═══════════════════════════════════════
+function updateHUD(){
+  document.getElementById('piecesStat').textContent=`${STATE.filledCount} / ${STATE.totalRegions}`;
+}
+function startTimer(){
+  if(STATE.timerInterval) clearInterval(STATE.timerInterval);
+  updateTimerDisplay();
+  STATE.timerInterval=setInterval(()=>{
+    STATE.timerSecs--;updateTimerDisplay();
+    if(STATE.timerSecs<=0){clearInterval(STATE.timerInterval);triggerComplete();}
+  },1000);
+}
+function updateTimerDisplay(){
+  const m=Math.floor(STATE.timerSecs/60),s=STATE.timerSecs%60;
+  const txt=`${m}:${s.toString().padStart(2,'0')}`;
+  ['timerDisplay','timerDisplay2'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.textContent=txt;el.classList.toggle('urgent',STATE.timerSecs<60);
+  });
+}
+function checkWin(){
+  if(STATE.filledCount>=STATE.totalRegions){clearInterval(STATE.timerInterval);setTimeout(triggerComplete,400);}
+}
+
+// ═══════════════════════════════════════
+// COMPLETION
+// ═══════════════════════════════════════
+function triggerComplete(){
+  showScreen('complete');
+  const canvas=document.getElementById('revealCanvas');
+  const maxW=Math.min(window.innerWidth*.85,370);
+  canvas.width=Math.round(maxW);
+  canvas.height=Math.round(maxW*STATE.originalImage.height/STATE.originalImage.width);
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#f5f0e8';ctx.fillRect(0,0,canvas.width,canvas.height);
+  let alpha=0;
+  (function fade(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#f5f0e8';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.globalAlpha=alpha;ctx.drawImage(STATE.originalImage,0,0,canvas.width,canvas.height);ctx.globalAlpha=1;
+    alpha=Math.min(1,alpha+0.01);if(alpha<1)requestAnimationFrame(fade);
+  })();
+}
+
+document.getElementById('playAgainBtn').addEventListener('click',()=>{
+  clearInterval(STATE.timerInterval);
+  document.getElementById('game').classList.remove('landscape');
+  Object.assign(STATE,{
+    imageData:null,selectedPainting:null,originalImage:null,
+    palette:[],regions:[],regionMap:null,
+    currentTarget:null,filledCount:0,totalRegions:0,
+    spinning:false,completedColors:new Set(),
+  });
+  document.getElementById('previewThumb').style.display='none';
+  document.querySelectorAll('.gallery-card').forEach(c=>c.classList.remove('selected'));
+  startBtn.disabled=true;
+  showScreen('setup');
+});
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+let toastTimer;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+window.addEventListener('resize',()=>{
+  if(document.getElementById('game').classList.contains('active')) fitCanvas();
+});
+
+buildGallery();
+</script>
+
+</body>
+</html>

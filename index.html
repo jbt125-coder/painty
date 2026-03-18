@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Restore the Masters 🎨</title>
+<script src="https://www.youtube.com/iframe_api"></script>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Reenie+Beanie&display=swap" rel="stylesheet">
 <style>
 :root{ --ink:#1a1008; --paper:#f5f0e8; --accent:#c0392b; --gold:#d4a017; --sage:#7a9e7e; }
@@ -54,18 +55,29 @@ h1{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2.2rem,7vw,3.6rem);te
 @keyframes pulse{to{transform:scale(1.1);}}
 .gamebody{flex:1;display:flex;position:relative;overflow:hidden;width:100%;}
 #gc{display:block;position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;cursor:crosshair;}
-.ctrl{background:var(–paper);border-top:2.5px solid var(–ink);padding:9px 13px;display:flex;align-items:center;gap:13px;flex-shrink:0;width:100%;}
-#game.land .ctrl{border-top:none;border-left:2.5px solid var(–ink);flex-direction:column;width:148px;padding:11px 8px;justify-content:center;}
-.spinsec{display:flex;flex-direction:column;align-items:center;gap:3px;}
-#sc{border:2.5px solid var(–ink);border-radius:50%;box-shadow:3px 3px 0 var(–ink);}
-.spinbtn{background:var(–gold);border:2.5px solid var(–ink);border-radius:8px;padding:4px 13px;font-family:‘Caveat’,cursive;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:3px 3px 0 var(–ink);transition:all .1s;}
-.spinbtn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(–ink);}
+.ctrl{
+background:var(–paper);
+border-top:2.5px solid var(–ink);
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+align-items:center;
+flex-shrink:0;
+width:100%;
+height:20vh;
+min-height:80px;
+max-height:130px;
+}
+.ctrl-left{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:100%;border-right:1.5px solid #c8bba0;padding:4px 0;}
+.ctrl-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;height:100%;}
+.ctrl-right{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:100%;border-left:1.5px solid #c8bba0;}
+#sc{border:2px solid var(–ink);border-radius:50%;box-shadow:2px 2px 0 var(–ink);}
+.spinbtn{background:var(–gold);border:2px solid var(–ink);border-radius:7px;padding:2px 10px;font-family:‘Caveat’,cursive;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(–ink);transition:all .1s;}
+.spinbtn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(–ink);}
 .spinbtn:disabled{background:#ccc;cursor:not-allowed;transform:none;}
-.tgtsec{flex:1;display:flex;flex-direction:column;gap:4px;}
-.tgtlabel{font-size:.82rem;color:#6b5740;}
-.tgtrow{display:flex;align-items:center;gap:9px;}
-.bignum{font-family:‘Reenie Beanie’,cursive;font-size:2.8rem;line-height:1;color:var(–accent);text-shadow:2px 2px 0 var(–ink);}
-.rembadge{background:var(–sage);color:#fff;border:2px solid var(–ink);border-radius:20px;padding:2px 9px;font-size:.82rem;box-shadow:2px 2px 0 var(–ink);}
+.tgtlabel{font-size:.72rem;color:#6b5740;text-align:center;line-height:1.2;}
+.bignum{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2.2rem,6vh,3.5rem);line-height:1;color:var(–accent);text-shadow:2px 2px 0 var(–ink);}
+.rem-label{font-size:.72rem;color:#6b5740;text-align:center;}
+.rembadge{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2rem,5.5vh,3.2rem);line-height:1;color:var(–sage);text-shadow:2px 2px 0 var(–ink);text-align:center;}
 
 /* ── COMPLETE ── */
 #complete{gap:16px;padding:24px;text-align:center;}
@@ -76,6 +88,22 @@ h1{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2.2rem,7vw,3.6rem);te
 .againbtn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(–ink);}
 .toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:var(–ink);color:var(–paper);padding:8px 18px;border-radius:30px;font-size:1rem;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;}
 .toast.show{opacity:1;}
+/* ── MUSIC ── */
+.music-btn{background:none;border:2px solid var(–ink);border-radius:20px;padding:2px 9px;font-family:‘Caveat’,cursive;font-size:.88rem;cursor:pointer;box-shadow:2px 2px 0 var(–ink);transition:all .1s;color:var(–ink);}
+.music-btn:hover{background:var(–ink);color:var(–paper);}
+.music-btn.playing{background:var(–sage);color:#fff;border-color:var(–sage);}
+#musicPanel{display:none;position:fixed;bottom:21vh;left:50%;transform:translateX(-50%);background:var(–paper);border:2.5px solid var(–ink);border-radius:14px;padding:14px 16px;box-shadow:5px 5px 0 var(–ink);z-index:200;width:min(90vw,340px);gap:10px;flex-direction:column;}
+#musicPanel.open{display:flex;}
+#musicPanel h3{font-family:‘Reenie Beanie’,cursive;font-size:1.5rem;text-align:center;}
+#musicPanel input[type=text]{width:100%;border:2px solid var(–ink);border-radius:8px;padding:6px 10px;font-family:‘Caveat’,cursive;font-size:.95rem;background:#fff;}
+.music-row{display:flex;gap:8px;align-items:center;}
+.music-row label{font-size:.85rem;color:#6b5740;white-space:nowrap;}
+.music-row input[type=range]{flex:1;}
+.mpbtn{flex:1;background:#fff;border:2px solid var(–ink);border-radius:8px;padding:5px;font-family:‘Caveat’,cursive;font-size:.9rem;cursor:pointer;box-shadow:2px 2px 0 var(–ink);transition:all .1s;}
+.mpbtn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(–ink);}
+.mpbtn.active{background:var(–sage);color:#fff;}
+#musicStatus{font-size:.8rem;color:#8b7355;text-align:center;min-height:1.2em;}
+#ytPlayerContainer{position:fixed;left:-210px;bottom:0;width:200px;height:200px;pointer-events:none;}
 </style>
 
 </head>
@@ -112,21 +140,27 @@ h1{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2.2rem,7vw,3.6rem);te
     <span class="hudtitle">🖌️ Restore the Masters</span>
     <span class="pill" id="piecesstat">0 / 0</span>
     <span class="pill timer" id="timerel">10:00</span>
+    <button class="music-btn" id="musicToggleBtn" onclick="toggleMusicPanel()">🎵 Music</button>
   </div>
   <div class="gamebody">
     <canvas id="gc"></canvas>
   </div>
   <div class="ctrl">
-    <div class="spinsec">
-      <canvas id="sc" width="80" height="80"></canvas>
+    <!-- LEFT: spinner + spin button -->
+    <div class="ctrl-left">
+      <canvas id="sc"></canvas>
       <button class="spinbtn" id="spinbtn">SPIN!</button>
     </div>
-    <div class="tgtsec">
-      <span class="tgtlabel">Find and tap all pieces showing:</span>
-      <div class="tgtrow">
-        <span class="bignum" id="bignum">—</span>
-        <span class="rembadge" id="rembadge">spin to start</span>
-      </div>
+    <!-- MID: current target number -->
+    <div class="ctrl-mid">
+      <span class="tgtlabel">Find all the</span>
+      <span class="bignum" id="bignum">—</span>
+      <span class="tgtlabel">tap to reveal</span>
+    </div>
+    <!-- RIGHT: remaining count -->
+    <div class="ctrl-right">
+      <span class="rem-label">left to find</span>
+      <span class="rembadge" id="rembadge">—</span>
     </div>
   </div>
 </div>
@@ -587,7 +621,7 @@ function numHue(n){return ((n-1)/20)*360;}
 function drawWheel(){
   const canvas=document.getElementById('sc');
   const ctx=canvas.getContext('2d');
-  const W=80,R=35,cx=40,cy=40;
+  const W=canvas.width, cx=W/2, cy=W/2, R=cx*0.88;
   ctx.clearRect(0,0,W,W);
   const n=NUMS.length, slice=(Math.PI*2)/n;
   for(let i=0;i<n;i++){
@@ -597,13 +631,31 @@ function drawWheel(){
     ctx.fillStyle=done?'#ccc':`hsl(${numHue(NUMS[i])},60%,48%)`;ctx.fill();
     ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=0.5;ctx.stroke();
   }
-  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle='#1a1008';ctx.fill();
-  ctx.beginPath();ctx.moveTo(cx,cy-R-1);ctx.lineTo(cx-5,cy-R+9);ctx.lineTo(cx+5,cy-R+9);
+  ctx.beginPath();ctx.arc(cx,cy,R*0.13,0,Math.PI*2);ctx.fillStyle='#1a1008';ctx.fill();
+  // Pointer at top
+  const pw=R*0.14, ph=R*0.25;
+  ctx.beginPath();ctx.moveTo(cx,cy-R+1);ctx.lineTo(cx-pw,cy-R+ph);ctx.lineTo(cx+pw,cy-R+ph);
   ctx.closePath();ctx.fillStyle='#c0392b';ctx.fill();
   ctx.strokeStyle='#1a1008';ctx.lineWidth=1.5;ctx.stroke();
 }
 
-function initSpinner(){doneNums.clear();drawWheel();}
+function sizeSpinnerCanvas(){
+  // Size the spinner to fit within the left third of the ctrl panel
+  const ctrl=document.querySelector('.ctrl');
+  if(!ctrl) return;
+  const h=ctrl.clientHeight;
+  const btnH=28; // approx spin button height
+  const gap=3;
+  const size=Math.max(30, Math.min(h-btnH-gap-8, h*0.72));
+  const canvas=document.getElementById('sc');
+  canvas.width=size; canvas.height=size;
+}
+
+function initSpinner(){
+  doneNums.clear();
+  sizeSpinnerCanvas();
+  drawWheel();
+}
 
 document.getElementById('spinbtn').addEventListener('click',()=>{
   if(spinning) return;
@@ -729,6 +781,129 @@ window.addEventListener('resize',()=>{
     currentZoom=1;
     imgDrawW=baseW; imgDrawH=baseH; imgDrawX=baseX; imgDrawY=baseY;
     draw();
+  }
+});
+</script>
+
+<!-- MUSIC PANEL -->
+
+<div id="musicPanel">
+  <h3>🎵 Background Music</h3>
+  <input type="text" id="ytUrl" placeholder="Paste YouTube video or playlist URL…" value="https://youtube.com/playlist?list=PLtyioGn0RusztTJWp9ZBvtz3rkdMZG7kM">
+  <div class="music-row">
+    <button class="mpbtn" id="mpPlay" onclick="musicPlay()">▶ Play</button>
+    <button class="mpbtn" id="mpStop" onclick="musicStop()">■ Stop</button>
+    <button class="mpbtn" onclick="toggleMusicPanel()">✕ Close</button>
+  </div>
+  <div class="music-row">
+    <label>Volume</label>
+    <input type="range" id="musicVol" min="0" max="100" value="70" oninput="musicVolChange(this.value)">
+  </div>
+  <div id="musicStatus">No music loaded — paste a URL and press Play</div>
+</div>
+
+<!-- Hidden YouTube player -->
+
+<div id="ytPlayerContainer"></div>
+
+<script>
+// ── MUSIC — YouTube IFrame API (same pattern as Concert Quest) ──
+var ytPlayer=null, ytReady=false, ytPendingPlay=false, musicVolume=0.70, musicUnlocked=false;
+
+function ytExtract(url){
+  try{
+    var pl=url.match(/[?&]list=([A-Za-z0-9_-]+)/);if(pl)return{type:'playlist',id:pl[1]};
+    var v=url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);if(v)return{type:'video',id:v[1]};
+  }catch(e){}return null;
+}
+
+function onYouTubeIframeAPIReady(){
+  ytReady=true;
+  var url=document.getElementById('ytUrl').value.trim()||'https://youtube.com/playlist?list=PLtyioGn0RusztTJWp9ZBvtz3rkdMZG7kM';
+  var info=ytExtract(url);if(!info)return;
+  var pvars={autoplay:1,playsinline:1,controls:0,mute:1,origin:window.location.origin};
+  var vidId=undefined;
+  if(info.type==='playlist'){pvars.listType='playlist';pvars.list=info.id;pvars.shuffle=1;}
+  else{vidId=info.id;pvars.loop=1;pvars.playlist=info.id;}
+  var cfg={height:'200',width:'200',playerVars:pvars,events:{
+    onReady:function(e){
+      e.target.setVolume(Math.round(musicVolume*100));
+      if(ytPendingPlay&&musicUnlocked){e.target.unMute();e.target.playVideo();ytPendingPlay=false;setMusicStatus('▶ Playing');}
+    },
+    onStateChange:function(e){if(e.data===YT.PlayerState.ENDED||e.data===YT.PlayerState.UNSTARTED)e.target.playVideo();}
+  }};
+  if(vidId)cfg.videoId=vidId;
+  ytPlayer=new YT.Player('ytPlayerContainer',cfg);
+}
+
+function unlockAndPlay(){
+  // Must be called from a user gesture to satisfy browser autoplay policy
+  if(!musicUnlocked){
+    musicUnlocked=true;
+    // Resume any suspended audio context
+    if(window.AudioContext||window.webkitAudioContext){
+      try{var ac=new(window.AudioContext||window.webkitAudioContext)();ac.resume();}catch(e){}
+    }
+  }
+  if(ytPlayer&&ytPlayer.unMute){
+    ytPlayer.unMute();ytPlayer.setVolume(Math.round(musicVolume*100));ytPlayer.playVideo();
+    setMusicStatus('▶ Playing');
+    document.getElementById('musicToggleBtn').classList.add('playing');
+    document.getElementById('musicToggleBtn').textContent='🎵 Playing';
+    document.getElementById('mpPlay').classList.add('active');
+  } else {
+    // Player not ready yet — load with new URL when ready
+    ytPendingPlay=true;
+    var url=document.getElementById('ytUrl').value.trim();
+    var info=ytExtract(url);
+    if(ytPlayer&&info){
+      if(info.type==='playlist')ytPlayer.loadPlaylist({list:info.id,listType:'playlist',index:0});
+      else ytPlayer.loadVideoById(info.id);
+      ytPlayer.unMute();ytPlayer.setVolume(Math.round(musicVolume*100));ytPlayer.playVideo();
+      setMusicStatus('▶ Playing');
+    } else {
+      setMusicStatus('Loading… press Play again in a moment');
+    }
+  }
+}
+
+function musicPlay(){
+  var url=document.getElementById('ytUrl').value.trim();
+  var info=ytExtract(url);
+  if(!info){setMusicStatus('⚠ Invalid URL — paste a YouTube link');return;}
+  if(ytPlayer&&ytPlayer.loadVideoById){
+    if(info.type==='playlist')ytPlayer.loadPlaylist({list:info.id,listType:'playlist',index:0,shuffle:1});
+    else ytPlayer.loadVideoById(info.id);
+  }
+  unlockAndPlay();
+}
+
+function musicStop(){
+  if(ytPlayer&&ytPlayer.pauseVideo){ytPlayer.pauseVideo();ytPlayer.mute();}
+  setMusicStatus('■ Stopped');
+  document.getElementById('musicToggleBtn').classList.remove('playing');
+  document.getElementById('musicToggleBtn').textContent='🎵 Music';
+  document.getElementById('mpPlay').classList.remove('active');
+}
+
+function musicVolChange(v){
+  musicVolume=v/100;
+  if(ytPlayer&&ytPlayer.setVolume)ytPlayer.setVolume(Math.round(musicVolume*100));
+}
+
+function setMusicStatus(msg){document.getElementById('musicStatus').textContent=msg;}
+
+function toggleMusicPanel(){
+  var p=document.getElementById('musicPanel');
+  p.classList.toggle('open');
+}
+
+// Close panel when clicking outside
+document.addEventListener('click',function(e){
+  var panel=document.getElementById('musicPanel');
+  var btn=document.getElementById('musicToggleBtn');
+  if(panel.classList.contains('open')&&!panel.contains(e.target)&&e.target!==btn){
+    panel.classList.remove('open');
   }
 });
 </script>

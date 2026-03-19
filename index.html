@@ -8,56 +8,55 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Reenie+Beanie&display=swap" rel="stylesheet">
 <style>
-:root{ --ink:#1a1008; --paper:#f5f0e8; --accent:#c0392b; --gold:#d4a017; --sage:#7a9e7e; }
 *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation;}
-body{background:var(--paper);font-family:'Caveat',cursive;color:var(--ink);height:100vh;overflow:hidden;
+body{background:#f5f0e8;font-family:'Caveat',cursive;color:#1a1008;height:100vh;overflow:hidden;
   background-image:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(26,16,8,.04) 27px,rgba(26,16,8,.04) 28px);}
 .screen{display:none;width:100%;height:100vh;flex-direction:column;align-items:center;justify-content:center;}
 .screen.active{display:flex;}
 
 /* ── SETUP ── */
 #setup{gap:14px;padding:20px;overflow-y:auto;}
-h1{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2.2rem,7vw,3.6rem);text-shadow:3px 3px 0 var(–gold);text-align:center;line-height:1;}
+h1{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2.2rem,7vw,3.6rem);text-shadow:3px 3px 0 #d4a017;text-align:center;line-height:1;}
 .sub{font-size:1rem;color:#6b5740;text-align:center;}
 .glabel{font-size:1.1rem;font-weight:600;width:100%;max-width:500px;}
 .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:9px;width:100%;max-width:500px;}
-.gcard{border:2.5px solid var(–ink);border-radius:10px;overflow:hidden;cursor:pointer;box-shadow:3px 3px 0 var(–ink);background:#fff;position:relative;transition:all .15s;}
-.gcard:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(–ink);}
-.gcard.sel{border-color:var(–accent);box-shadow:3px 3px 0 var(–accent);}
+.gcard{border:2.5px solid #1a1008;border-radius:10px;overflow:hidden;cursor:pointer;box-shadow:3px 3px 0 #1a1008;background:#fff;position:relative;transition:all .15s;}
+.gcard:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1a1008;}
+.gcard.sel{border-color:#c0392b;box-shadow:3px 3px 0 #c0392b;}
 .gcard img{width:100%;height:75px;object-fit:cover;display:block;}
 .gcard .ct{font-size:.7rem;padding:3px 4px;text-align:center;line-height:1.2;}
-.gcard .ck{display:none;position:absolute;top:3px;right:3px;background:var(–accent);color:#fff;border-radius:50%;width:17px;height:17px;font-size:.65rem;align-items:center;justify-content:center;}
+.gcard .ck{display:none;position:absolute;top:3px;right:3px;background:#c0392b;color:#fff;border-radius:50%;width:17px;height:17px;font-size:.65rem;align-items:center;justify-content:center;}
 .gcard.sel .ck{display:flex;}
 .upzone{border:3px dashed #b8a88a;border-radius:12px;padding:14px;text-align:center;cursor:pointer;background:rgba(255,255,255,.5);width:100%;max-width:500px;transition:all .2s;}
-.upzone:hover{border-color:var(–accent);}
+.upzone:hover{border-color:#c0392b;}
 .upzone .ic{font-size:1.8rem;display:block;margin-bottom:3px;}
 #fileInput{display:none;}
-.prevthumb{width:100%;max-height:85px;object-fit:contain;border-radius:6px;margin-top:7px;border:2px solid var(–gold);}
+.prevthumb{width:100%;max-height:85px;object-fit:contain;border-radius:6px;margin-top:7px;border:2px solid #d4a017;}
 .slabel{font-size:1.1rem;font-weight:600;width:100%;max-width:500px;}
 .tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:500px;}
-.tbtn{background:#fff;border:2.5px solid var(–ink);border-radius:9px;padding:9px 4px;text-align:center;cursor:pointer;box-shadow:3px 3px 0 var(–ink);font-family:‘Caveat’,cursive;transition:all .1s;}
-.tbtn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(–ink);}
-.tbtn.sel{background:var(–ink);color:var(–paper);box-shadow:1px 1px 0 var(–ink);transform:translate(2px,2px);}
+.tbtn{background:#fff;border:2.5px solid #1a1008;border-radius:9px;padding:9px 4px;text-align:center;cursor:pointer;box-shadow:3px 3px 0 #1a1008;font-family:‘Caveat’,cursive;transition:all .1s;}
+.tbtn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1a1008;}
+.tbtn.sel{background:#1a1008;color:#f5f0e8;box-shadow:1px 1px 0 #1a1008;transform:translate(2px,2px);}
 .tbtn .m{font-size:1.25rem;font-weight:700;display:block;}
 .tbtn .p{font-size:.75rem;color:#8b7355;}
 .tbtn.sel .p{color:#bba;}
-.startbtn{background:var(–accent);color:#fff;border:3px solid var(–ink);border-radius:12px;padding:12px 32px;font-family:‘Reenie Beanie’,cursive;font-size:1.6rem;cursor:pointer;box-shadow:5px 5px 0 var(–ink);transition:all .15s;width:100%;max-width:500px;}
-.startbtn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(–ink);}
+.startbtn{background:#c0392b;color:#fff;border:3px solid #1a1008;border-radius:12px;padding:12px 32px;font-family:‘Reenie Beanie’,cursive;font-size:1.6rem;cursor:pointer;box-shadow:5px 5px 0 #1a1008;transition:all .15s;width:100%;max-width:500px;}
+.startbtn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #1a1008;}
 .startbtn:disabled{background:#aaa;cursor:not-allowed;transform:none;box-shadow:3px 3px 0 #888;}
 
 /* ── GAME ── */
 #game{flex-direction:column;justify-content:flex-start;}
-.hud{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;background:var(–paper);border-bottom:2.5px solid var(–ink);flex-shrink:0;gap:8px;width:100%;}
+.hud{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;background:#f5f0e8;border-bottom:2.5px solid #1a1008;flex-shrink:0;gap:8px;width:100%;}
 .hudtitle{font-family:‘Reenie Beanie’,cursive;font-size:1.4rem;}
-.pill{background:#fff;border:2px solid var(–ink);border-radius:20px;padding:2px 10px;font-size:.88rem;box-shadow:2px 2px 0 var(–ink);}
+.pill{background:#fff;border:2px solid #1a1008;border-radius:20px;padding:2px 10px;font-size:.88rem;box-shadow:2px 2px 0 #1a1008;}
 .timer{font-family:‘Reenie Beanie’,cursive;font-size:1.45rem;min-width:50px;text-align:right;}
-.timer.urgent{color:var(–accent);animation:pulse .5s infinite alternate;}
+.timer.urgent{color:#c0392b;animation:pulse .5s infinite alternate;}
 @keyframes pulse{to{transform:scale(1.1);}}
 .gamebody{flex:1;display:flex;position:relative;overflow:hidden;width:100%;}
 #gc{display:block;position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;cursor:crosshair;}
 .ctrl{
-background:var(–paper);
-border-top:2.5px solid var(–ink);
+background:#f5f0e8;
+border-top:2.5px solid #1a1008;
 display:grid;
 grid-template-columns:1fr 1fr 1fr;
 align-items:center;
@@ -70,40 +69,62 @@ max-height:130px;
 .ctrl-left{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:100%;border-right:1.5px solid #c8bba0;padding:4px 0;}
 .ctrl-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;height:100%;}
 .ctrl-right{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:100%;border-left:1.5px solid #c8bba0;}
-#sc{border:2px solid var(–ink);border-radius:50%;box-shadow:2px 2px 0 var(–ink);}
-.spinbtn{background:var(–gold);border:2px solid var(–ink);border-radius:7px;padding:2px 10px;font-family:‘Caveat’,cursive;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(–ink);transition:all .1s;}
-.spinbtn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(–ink);}
+#sc{border:2px solid #1a1008;border-radius:50%;box-shadow:2px 2px 0 #1a1008;}
+.spinbtn{background:#d4a017;border:2px solid #1a1008;border-radius:7px;padding:2px 10px;font-family:‘Caveat’,cursive;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #1a1008;transition:all .1s;}
+.spinbtn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 #1a1008;}
 .spinbtn:disabled{background:#ccc;cursor:not-allowed;transform:none;}
 .tgtlabel{font-size:.72rem;color:#6b5740;text-align:center;line-height:1.2;}
-.bignum{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2.2rem,6vh,3.5rem);line-height:1;color:var(–accent);text-shadow:2px 2px 0 var(–ink);}
+.bignum{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2.2rem,6vh,3.5rem);line-height:1;color:#c0392b;text-shadow:2px 2px 0 #1a1008;}
 .rem-label{font-size:.72rem;color:#6b5740;text-align:center;}
-.rembadge{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2rem,5.5vh,3.2rem);line-height:1;color:var(–sage);text-shadow:2px 2px 0 var(–ink);text-align:center;}
+.rembadge{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2rem,5.5vh,3.2rem);line-height:1;color:#7a9e7e;text-shadow:2px 2px 0 #1a1008;text-align:center;}
 
 /* ── COMPLETE ── */
 #complete{gap:16px;padding:24px;text-align:center;}
-#complete h2{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2rem,7vw,3.2rem);text-shadow:3px 3px 0 var(–gold);}
-.revwrap{border:4px solid var(–ink);border-radius:12px;box-shadow:6px 6px 0 var(–ink);overflow:hidden;max-width:min(88vw,360px);}
+#complete h2{font-family:‘Reenie Beanie’,cursive;font-size:clamp(2rem,7vw,3.2rem);text-shadow:3px 3px 0 #d4a017;}
+.revwrap{border:4px solid #1a1008;border-radius:12px;box-shadow:6px 6px 0 #1a1008;overflow:hidden;max-width:min(88vw,360px);}
 #rc{display:block;width:100%;height:auto;}
-.againbtn{background:var(–sage);color:#fff;border:3px solid var(–ink);border-radius:11px;padding:11px 32px;font-family:‘Reenie Beanie’,cursive;font-size:1.6rem;cursor:pointer;box-shadow:5px 5px 0 var(–ink);transition:all .15s;}
-.againbtn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(–ink);}
-.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:var(–ink);color:var(–paper);padding:8px 18px;border-radius:30px;font-size:1rem;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;}
+.againbtn{background:#7a9e7e;color:#fff;border:3px solid #1a1008;border-radius:11px;padding:11px 32px;font-family:‘Reenie Beanie’,cursive;font-size:1.6rem;cursor:pointer;box-shadow:5px 5px 0 #1a1008;transition:all .15s;}
+.againbtn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #1a1008;}
+.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:#1a1008;color:#f5f0e8;padding:8px 18px;border-radius:30px;font-size:1rem;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;}
 .toast.show{opacity:1;}
 /* ── MUSIC ── */
-.music-btn{background:none;border:2px solid var(–ink);border-radius:20px;padding:2px 9px;font-family:‘Caveat’,cursive;font-size:.88rem;cursor:pointer;box-shadow:2px 2px 0 var(–ink);transition:all .1s;color:var(–ink);}
-.music-btn:hover{background:var(–ink);color:var(–paper);}
-.music-btn.playing{background:var(–sage);color:#fff;border-color:var(–sage);}
-#musicPanel{display:none;position:fixed;bottom:21vh;left:50%;transform:translateX(-50%);background:var(–paper);border:2.5px solid var(–ink);border-radius:14px;padding:14px 16px;box-shadow:5px 5px 0 var(–ink);z-index:200;width:min(90vw,340px);gap:10px;flex-direction:column;}
+.music-btn{background:none;border:2px solid #1a1008;border-radius:20px;padding:2px 9px;font-family:‘Caveat’,cursive;font-size:.88rem;cursor:pointer;box-shadow:2px 2px 0 #1a1008;transition:all .1s;color:#1a1008;}
+.music-btn:hover{background:#1a1008;color:#f5f0e8;}
+.music-btn.playing{background:#7a9e7e;color:#fff;border-color:#7a9e7e;}
+#musicPanel{display:none;position:fixed;bottom:21vh;left:50%;transform:translateX(-50%);background:#f5f0e8;border:2.5px solid #1a1008;border-radius:14px;padding:14px 16px;box-shadow:5px 5px 0 #1a1008;z-index:200;width:min(90vw,340px);gap:10px;flex-direction:column;}
 #musicPanel.open{display:flex;}
 #musicPanel h3{font-family:‘Reenie Beanie’,cursive;font-size:1.5rem;text-align:center;}
-#musicPanel input[type=text]{width:100%;border:2px solid var(–ink);border-radius:8px;padding:6px 10px;font-family:‘Caveat’,cursive;font-size:.95rem;background:#fff;}
+#musicPanel input[type=text]{width:100%;border:2px solid #1a1008;border-radius:8px;padding:6px 10px;font-family:‘Caveat’,cursive;font-size:.95rem;background:#fff;}
 .music-row{display:flex;gap:8px;align-items:center;}
 .music-row label{font-size:.85rem;color:#6b5740;white-space:nowrap;}
 .music-row input[type=range]{flex:1;}
-.mpbtn{flex:1;background:#fff;border:2px solid var(–ink);border-radius:8px;padding:5px;font-family:‘Caveat’,cursive;font-size:.9rem;cursor:pointer;box-shadow:2px 2px 0 var(–ink);transition:all .1s;}
-.mpbtn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(–ink);}
-.mpbtn.active{background:var(–sage);color:#fff;}
+.mpbtn{flex:1;background:#fff;border:2px solid #1a1008;border-radius:8px;padding:5px;font-family:‘Caveat’,cursive;font-size:.9rem;cursor:pointer;box-shadow:2px 2px 0 #1a1008;transition:all .1s;}
+.mpbtn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 #1a1008;}
+.mpbtn.active{background:#7a9e7e;color:#fff;}
 #musicStatus{font-size:.8rem;color:#8b7355;text-align:center;min-height:1.2em;}
 #ytPlayerContainer{position:fixed;left:-210px;bottom:0;width:200px;height:200px;pointer-events:none;}
+/* ── INSTRUCTIONS OVERLAY ── */
+#instrOverlay{position:fixed;inset:0;background:rgba(26,16,8,0.82);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;}
+#instrCard{background:#f5f0e8;border:3px solid #1a1008;border-radius:18px;padding:26px 22px;max-width:380px;width:100%;box-shadow:6px 6px 0 #1a1008;display:flex;flex-direction:column;gap:14px;}
+#instrCard h2{font-family:‘Reenie Beanie’,cursive;font-size:2.2rem;text-align:center;text-shadow:2px 2px 0 #d4a017;}
+.instr-step{display:flex;align-items:flex-start;gap:12px;}
+.instr-num{font-family:‘Reenie Beanie’,cursive;font-size:2rem;line-height:1;color:#c0392b;flex-shrink:0;width:28px;text-align:center;}
+.instr-text{font-size:1.05rem;color:#3a2a1a;line-height:1.4;padding-top:4px;}
+.instr-start{background:#c0392b;color:#fff;border:3px solid #1a1008;border-radius:12px;padding:12px;font-family:‘Reenie Beanie’,cursive;font-size:1.7rem;cursor:pointer;box-shadow:4px 4px 0 #1a1008;transition:all .15s;width:100%;margin-top:4px;}
+.instr-start:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #1a1008;}
+
+/* ── NUMBER COMPLETE POPUP ── */
+#numCompletePopup{position:fixed;inset:0;background:rgba(26,16,8,0.7);z-index:400;display:none;align-items:center;justify-content:center;}
+#numCompletePopup.show{display:flex;}
+#numCompleteCard{background:#f5f0e8;border:3px solid #1a1008;border-radius:18px;padding:28px 24px;max-width:320px;width:90%;box-shadow:6px 6px 0 #1a1008;text-align:center;display:flex;flex-direction:column;gap:14px;}
+#numCompleteCard h2{font-family:‘Reenie Beanie’,cursive;font-size:2.4rem;text-shadow:2px 2px 0 #d4a017;}
+#numCompleteCard p{font-size:1.1rem;color:#3a2a1a;line-height:1.4;}
+#numCompleteSpinBtn{background:#d4a017;border:3px solid #1a1008;border-radius:12px;padding:13px;font-family:‘Reenie Beanie’,cursive;font-size:1.8rem;cursor:pointer;box-shadow:4px 4px 0 #1a1008;transition:all .15s;}
+#numCompleteSpinBtn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #1a1008;}
+
+/* ── SPINNER TAP ZONE ── */
+.ctrl-left{cursor:pointer;}
+.ctrl-left:active{background:rgba(26,16,8,0.04);}
 </style>
 
 </head>
@@ -341,7 +362,28 @@ function buildGame(){
     imgDrawW=baseW; imgDrawH=baseH; imgDrawX=baseX; imgDrawY=baseY;
     updateHUD();
     draw();
+    // Show instructions on first game start
+    showInstructions();
   });
+}
+
+// ── INSTRUCTIONS ──
+function showInstructions(){
+  document.getElementById('instrOverlay').style.display='flex';
+}
+function closeInstructions(){
+  document.getElementById('instrOverlay').style.display='none';
+}
+
+// ── NUMBER COMPLETE POPUP ──
+function showNumComplete(num){
+  document.getElementById('numCompleteMsg').textContent=`You found all the ${num}s! Spin again for your next number!`;
+  document.getElementById('numCompletePopup').classList.add('show');
+}
+function closeNumComplete(){
+  document.getElementById('numCompletePopup').classList.remove('show');
+  // Trigger spin automatically
+  document.getElementById('spinbtn').click();
 }
 
 // ── DRAW ──
@@ -646,9 +688,10 @@ function sizeSpinnerCanvas(){
   const ctrl=document.querySelector('.ctrl');
   if(!ctrl) return;
   const h=ctrl.clientHeight;
-  const btnH=28; // approx spin button height
+  const btnH=28;
   const gap=3;
-  const size=Math.max(30, Math.min(h-btnH-gap-8, h*0.72));
+  // 20% bigger than before (was h*0.72, now h*0.86)
+  const size=Math.max(36, Math.min(h-btnH-gap-8, h*0.86));
   const canvas=document.getElementById('sc');
   canvas.width=size; canvas.height=size;
 }
@@ -659,7 +702,7 @@ function initSpinner(){
   drawWheel();
 }
 
-document.getElementById('spinbtn').addEventListener('click',()=>{
+function doSpin(){
   if(spinning) return;
   const avail=NUMS.filter(n=>!doneNums.has(n)&&cells.some(c=>c.number===n&&!c.revealed));
   if(!avail.length) return;
@@ -691,7 +734,16 @@ document.getElementById('spinbtn').addEventListener('click',()=>{
       toast(`Find all the ${target}s! 🔍`);
     }
   })(t0);
+}
+
+// Spin button click
+document.getElementById('spinbtn').addEventListener('click', e=>{
+  e.stopPropagation(); // prevent double-fire from ctrl-left listener
+  doSpin();
 });
+
+// Tap anywhere in the left ctrl box to spin
+document.querySelector('.ctrl-left').addEventListener('click', ()=>doSpin());
 
 function updateRem(){
   if(currentTarget===null) return;
@@ -700,12 +752,14 @@ function updateRem(){
 }
 
 function checkNumDone(){
-  if(cells.filter(c=>c.number===currentTarget).every(c=>c.revealed)){
-    doneNums.add(currentTarget);drawWheel();
-    toast(`All ${currentTarget}s found! ✨ Spin again!`);
+  const num = currentTarget;
+  if(cells.filter(c=>c.number===num).every(c=>c.revealed)){
+    doneNums.add(num); drawWheel();
     currentTarget=null;
     document.getElementById('bignum').textContent='—';
-    document.getElementById('rembadge').textContent='spin again!';
+    document.getElementById('rembadge').textContent='—';
+    // Show the popup celebration
+    showNumComplete(num);
   }
 }
 
@@ -786,6 +840,45 @@ window.addEventListener('resize',()=>{
   }
 });
 </script>
+
+<!-- INSTRUCTIONS OVERLAY -->
+
+<div id="instrOverlay" style="display:none;">
+  <div id="instrCard">
+    <h2>🖌️ How to Play</h2>
+    <div class="instr-step">
+      <span class="instr-num">1</span>
+      <span class="instr-text">Tap <strong>SPIN!</strong> to get a number — or tap anywhere in the spinner box</span>
+    </div>
+    <div class="instr-step">
+      <span class="instr-num">2</span>
+      <span class="instr-text">Find every piece on the painting showing that number and tap it to reveal</span>
+    </div>
+    <div class="instr-step">
+      <span class="instr-num">3</span>
+      <span class="instr-text"><strong>Pinch to zoom in</strong> and drag to hunt for hard-to-find numbers</span>
+    </div>
+    <div class="instr-step">
+      <span class="instr-num">4</span>
+      <span class="instr-text">Can't find a number? Spin again — you can always come back to it</span>
+    </div>
+    <div class="instr-step">
+      <span class="instr-num">5</span>
+      <span class="instr-text">Reveal all the pieces to restore the masterpiece! 🎨</span>
+    </div>
+    <button class="instr-start" onclick="closeInstructions()">Let's Paint! 🎨</button>
+  </div>
+</div>
+
+<!-- NUMBER COMPLETE POPUP -->
+
+<div id="numCompletePopup">
+  <div id="numCompleteCard">
+    <h2>🎉 Amazing!</h2>
+    <p id="numCompleteMsg">You found all the 7s!</p>
+    <button id="numCompleteSpinBtn" onclick="closeNumComplete()">Spin for Next Number 🎡</button>
+  </div>
+</div>
 
 <!-- MUSIC PANEL -->
 
